@@ -38,14 +38,9 @@ The project is deployed as a Streamlit web application and containerized using D
 
 The Streamlit application is containerized using Docker, and the Docker image is deployed on a Kubernetes cluster. This allows for easy scaling of the application to handle multiple users.
 
-# Troubleshooting Kubernetes Cluster Issues
+## Troubleshooting Kubernetes Cluster Issues
 
 While working with a Kubernetes cluster, I have encountered various problems. One of them was the ImagePullBackOff and ErrImagePull error. I didn't fully understand the essence of this error, because earlier this project was running in K8s, but when I checked the project again, it started to generate these errors. 
-
-## ImagePullBackOff or ErrImagePull Errors
-
-These errors occur when Kubernetes cannot pull the Docker image. This might be because the image does not exist, or due to network issues, or authentication problems with the Docker registry.
-
 ## Conclusion
 
 This project provides valuable insights into the trends and patterns of CO₂ and N₂O emissions. The forecasting model can be used to predict future emissions, which can inform policy decisions and climate change mitigation strategies.
