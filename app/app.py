@@ -63,7 +63,7 @@ elif option == 'Graphs':
     if graph_option == 'Emission Worldwide':
 
         # Grouping the data by year and summing the values
-        total_emissions_year = df.groupby('Year')['Value'].sum()
+        total_emissions_year = df.groupby('year_data')['value_mt'].sum()
 
         fig = px.line(x=total_emissions_year.index, y=total_emissions_year.values)
         fig.update_layout(
@@ -74,7 +74,7 @@ elif option == 'Graphs':
         st.plotly_chart(fig)
 
         # Grouping data by country and calculating total emissions
-        top_countries_emissions = df.groupby('Entity')['Value'].sum().nlargest(10)
+        top_countries_emissions = df.groupby('entity')['value_mt'].sum().nlargest(10)
 
         fig = px.bar(x=top_countries_emissions.values, y=top_countries_emissions.index, orientation='h')
         fig.update_layout(
@@ -86,11 +86,11 @@ elif option == 'Graphs':
 
     elif graph_option == 'Annual Emission by Country':
         # Filtering data by selected country
-        countries = df['Entity'].unique()
+        countries = df['entity'].unique()
 
         selected_country = st.selectbox('Select a country', countries)
-        country_data = df[df['Entity'] == selected_country]
-        fig = px.line(country_data, x='Year', y='Value')
+        country_data = df[df['entity'] == selected_country]
+        fig = px.line(country_data, x='year_data', y='value_mt')
         fig.update_layout(
             title='Emissions by Country',
             xaxis_title='Year',

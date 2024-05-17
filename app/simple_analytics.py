@@ -60,15 +60,15 @@ class EmissionDataModeling:
         self.df = pd.read_sql(query, connection)
 
         # Get all countries from the model - the id is the pair of Entity and country_code
-        countries = self.df["Entity"].unique()
+        countries = self.df["entity"].unique()
 
         # Average every year for each country
         emissions_averaged = {}
 
         for i in range(len(countries)):
             emissions_averaged[countries[i]] = (
-                self.df[self.df["Entity"] == countries[i]]
-                .groupby("Year")["Value"]
+                self.df[self.df["entity"] == countries[i]]
+                .groupby("year_data")["value_mt"]
                 .mean()
             )
 
@@ -83,27 +83,27 @@ class EmissionDataModeling:
             if model is not None:
                 self.models[country] = model
 
-    def predict(self, Entity, n_steps):
-        model = self.models[Entity]
+    def predict(self, entity, n_steps):
+        model = self.models[entity]
 
         forecast = model.forecast(steps=n_steps)
 
         new_index = pd.date_range(
-            start=self.emissions_averaged[Entity].index[-1], periods=n_steps, freq="Y"
+            start=self.emissions_averaged[entity].index[-1], periods=n_steps, freq="Y"
         )
 
         forecast = pd.Series(forecast, index=new_index)
 
         return forecast
     
-    def plot_forecast(self, Entity, n_steps):
+    def plot_forecast(self, entity, n_steps):
         # Get a forecast
-        forecast = self.predict(Entity, n_steps)
+        forecast = self.predict(entity, n_steps)
 
         # Get historical data
-        emission_series = self.emissions_averaged[Entity]
+        emission_series = self.emissions_averaged[entity]
 
         # Plot the historical data and the forecast
-        fig = plot_time_series(emission_series, forecast, f'Emissions Forecast for {Entity}')
+        fig = plot_time_series(emission_series, forecast, f'Emissions Forecast for {entity}')
 
         return fig
