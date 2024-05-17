@@ -3,7 +3,14 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import plotly.express as px
 import plotly.graph_objects as go
+import pymysql
 from statsmodels.tsa.arima.model import ARIMA
+
+# Set up database connection
+connection = pymysql.connect(host='db',  # Host name
+                             user='root',  # MySQL username
+                             password='my-secret-pw',  # MySQL user password
+                             db='emissions')  # Database name
 
 # Auxiliary functions
 def create_model(emission_series):
@@ -43,14 +50,14 @@ class EmissionDataModeling:
 
         # Choose the data set based on the emission type
         if emission_type == "CO\u2082 emisiions per capita":
-            data_file = './datasets/co-emissions-per-capita.csv'
+            query = 'SELECT * FROM co_emissions_per_capita'
         elif emission_type == "N\u2082O emisiions per capita":
-            data_file = './datasets/per-capita-nitrous-oxide.csv'
+            query = 'SELECT * FROM per_capita_nitrous_oxide'
         else:
             raise ValueError(f"Unknown emission type: {emission_type}")
 
         # Load the data set
-        self.df = pd.read_csv(data_file)
+        self.df = pd.read_sql(query, connection)
 
         # Get all countries from the model - the id is the pair of Entity and country_code
         countries = self.df["Entity"].unique()

@@ -4,7 +4,14 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
+import pymysql
 from simple_analytics import *
+
+# Set up database connection
+connection = pymysql.connect(host='db',  # Host name
+                             user='root',  # MySQL username
+                             password='my-secret-pw',  # MySQL user password
+                             db='emissions')  # Database name
 
 st.set_page_config(
     page_title="CO\u2082 & N\u2082O Emissions EDA",
@@ -18,9 +25,11 @@ data_type = st.sidebar.radio('Data',
                              ('CO\u2082 emisiions per capita','N\u2082O emisiions per capita'))
 
 if data_type == 'CO\u2082 emisiions per capita':
-    df = pd.read_csv('./datasets/co-emissions-per-capita.csv')
+    query = 'SELECT * FROM co_emissions_per_capita'
 else: 
-    df = pd.read_csv('./datasets/per-capita-nitrous-oxide.csv')
+    query = 'SELECT * FROM per_capita_nitrous_oxide'
+
+df = pd.read_sql(query, connection)
 
 option = st.sidebar.selectbox(
     'Select the tab',
