@@ -1,0 +1,25 @@
+version: '3'
+services:
+  db:
+    build: ./db
+    container_name: mysql-db
+    environment:
+      MYSQL_ROOT_PASSWORD: my-secret-pw
+    ports:
+      - "3306:3306"
+    restart: on-failure
+    volumes:
+      - db_data:/var/lib/mysql
+
+  app:
+    build: ./app
+    container_name: streamlit-app
+    ports:
+      - "8501:8501"
+    depends_on:
+      - db
+    restart: always
+
+volumes:
+  db_data:
+  

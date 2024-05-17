@@ -1,7 +1,0 @@
-streamlit
-seaborn
-numpy
-pandas
-matplotlib
-plotly
-statsmodels
