@@ -1,11 +1,9 @@
 import streamlit as st
 import plotly.express as px
 import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
-import plotly.graph_objects as go
 import pymysql
-from simple_analytics import *
+from lstm_model import EmissionModeling
+from arima_forecast import EmissionDataModeling
 
 # Set up database connection
 connection = pymysql.connect(host='db',  # Host name
@@ -101,16 +99,26 @@ elif option == 'Graphs':
 elif option == 'ML Modeling':
     st.title("ML Modeling")
 
-    # Creating an instance of EmissionDataModeling class
-    modeling = EmissionDataModeling(data_type)
+    # Select the model type
+    model_type = st.sidebar.selectbox('Select model type', ('ARIMA', 'LSTM'))
 
-    # Training of models for all countries
-    modeling.fit_models()
+    # Creating an instance of EmissionModeling class
+    if model_type == 'LSTM':
+        modeling = EmissionModeling(data_type)
+        modeling.load_data(query, connection)
+        modeling.load_models()
+    elif model_type == 'ARIMA':
+        modeling = EmissionDataModeling(data_type)
+        modeling.fit_models()
 
     # Country selection and number of forecast steps
-    selected_country = st.selectbox('Select a country', modeling.countries)
+    selected_country = st.selectbox('Select a country', df['entity'].unique())
     n_steps = st.slider('Number of steps to forecast', min_value=1, max_value=100, value=1)
 
     # Plotting the forecast graph for the selected country
-    fig = modeling.plot_forecast(selected_country, n_steps)
-    st.plotly_chart(fig)
+    if model_type == 'LSTM':
+        fig = modeling.plot_forecast(selected_country, n_steps)
+        st.plotly_chart(fig)
+    elif model_type == 'ARIMA':
+        fig = modeling.plot_forecast(selected_country, n_steps)
+        st.plotly_chart(fig)

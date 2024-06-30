@@ -7,3 +7,6 @@ pymysql
 numpy
 statsmodels
 cryptography
+tensorflow
+keras
+scikit-learn
