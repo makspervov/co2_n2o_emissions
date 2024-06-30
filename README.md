@@ -22,9 +22,9 @@ The `Dockerfile` in the `db` directory is used to build a Docker image of the My
 
 The datasets include the following columns:
 
-- `Year`: The year of the data point.
-- `Entity`: The country for which the data point is reported.
-- `Value`: The amount of emissions (in metric tons) for that year and country.
+- `year_data`: The year of the data point.
+- `entity`: The country for which the data point is reported.
+- `value_mt`: The amount of emissions (in metric tons) for that year and country.
 
 ## Graphs
 
@@ -36,27 +36,52 @@ Several graphs are generated to visualize the data:
 
 ## Machine Learning Modeling
 
-A machine learning model is trained to forecast future emissions. The model is an instance of the `EmissionDataModeling` class, which uses the ARIMA model for time series forecasting.
+A machine learning model is trained to forecast future emissions. The models are instances of the `EmissionModeling` (for LSTM) and `EmissionDataModeling` (for ARIMA) classes.
+
+### EmissionModeling Class (LSTM)
+
+The `EmissionModeling` class includes the following methods:
+
+- `load_data(query, connection)`: Loads data from the database using a SQL query and connection.
+- `preprocess_data(country_data)`: Preprocesses the data for the LSTM model.
+- `create_dataset(dataset, look_back=1)`: Creates a dataset for the LSTM model.
+- `train_lstm(trainX, trainY)`: Trains the LSTM model.
+- `train_models(countries)`: Trains models for each country.
+- `save_models(path='models/')`: Saves the trained models.
+- `load_models(path='models/')`: Loads the trained models.
+- `plot_forecast(country, n_steps)`: Plots the forecasted emissions for a given country using Plotly.
+
+### EmissionDataModeling Class (ARIMA)
 
 The `EmissionDataModeling` class includes the following methods:
 
 - `fit_models()`: Trains a model for each country.
 - `predict(country_name, n_steps)`: Forecasts emissions for the next `n_steps` years for a given country.
-- `plot_forecast(country_name, n_steps)`: Plots the forecasted emissions for a given country.
-
-The project is deployed as a Streamlit web application and containerized using Docker for easy deployment and scaling.
+- `plot_forecast(country_name, n_steps)`: Plots the forecasted emissions for a given country using Matplotlib.
 
 ## Deployment
 
 The Streamlit application and the MySQL database are both containerized using Docker. These containers are defined and run together using Docker Compose, which simplifies the deployment process and ensures that the application and database work together seamlessly.
 
-To deploy the application, you can clone the repository, navigate to the directory containing the `docker-compose.yml` file, and run `docker-compose up`. This will build the Docker images (if they don't already exist) and start the services defined in `docker-compose.yml`.
-
 ### Docker Compose
 
 Docker Compose is used to run the Streamlit application and MySQL database together. The `docker-compose.yml` file in the root directory of the project defines the services that make up the application. It includes the build context and Dockerfile location for each service, and sets up the necessary environment variables and ports.
 
-To start the application, you can run `docker-compose up` in the directory containing the `docker-compose.yml` file. This will build the Docker images if they don't already exist, and start the services defined in `docker-compose.yml`.
+To deploy the application, follow these steps:
+
+1. Clone the repository:
+    ```sh
+    git clone https://github.com/your-repo/emissions-forecasting.git
+    ```
+2. Navigate to the directory containing the `docker-compose.yml` file:
+    ```sh
+    cd emissions-forecasting
+    ```
+3. Build and start the services:
+    ```sh
+    docker-compose up --build
+    ```
+This will build the Docker images (if they don't already exist) and start the services defined in `docker-compose.yml`.
 
 ## Conclusion
 
