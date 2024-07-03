@@ -104,21 +104,27 @@ elif option == 'ML Modeling':
 
     # Creating an instance of EmissionModeling class
     if model_type == 'LSTM':
-        modeling = EmissionModeling(data_type)
+        modeling = EmissionModeling(data_type="sql")
         modeling.load_data(query, connection)
         modeling.load_models()
+
+        countries = df['entity'].unique()
+        selected_country = st.selectbox('Select a country', countries)
+        n_steps = st.slider('Number of steps to forecast', min_value=1, max_value=100, value=1)
+
+        if st.button('Show Forecast'):
+            fig = modeling.train_and_plot_if_needed(selected_country, n_steps)
+            st.plotly_chart(fig)
+
     elif model_type == 'ARIMA':
         modeling = EmissionDataModeling(data_type)
         modeling.fit_models()
 
-    # Country selection and number of forecast steps
-    selected_country = st.selectbox('Select a country', df['entity'].unique())
-    n_steps = st.slider('Number of steps to forecast', min_value=1, max_value=100, value=1)
+        countries = df['entity'].unique()
+        selected_country = st.selectbox('Select a country', countries)
+        n_steps = st.slider('Number of steps to forecast', min_value=1, max_value=100, value=1)
 
-    # Plotting the forecast graph for the selected country
-    if model_type == 'LSTM':
-        fig = modeling.plot_forecast(selected_country, n_steps)
-        st.plotly_chart(fig)
-    elif model_type == 'ARIMA':
-        fig = modeling.plot_forecast(selected_country, n_steps)
-        st.plotly_chart(fig)
+        if st.button('Show Forecast'):
+            fig = modeling.plot_forecast(selected_country, n_steps)
+            st.plotly_chart(fig)
+

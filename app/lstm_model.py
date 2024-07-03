@@ -1,13 +1,13 @@
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import LSTM, Dense
 from sklearn.metrics import mean_squared_error
 from math import sqrt
-import tensorflow as tf
-from keras.models import Sequential
-from keras.layers import Dense, LSTM
 import pickle
-import plotly.graph_objs as go
+import matplotlib.pyplot as plt
 
 class EmissionModeling:
     def __init__(self, data_type):
@@ -20,7 +20,8 @@ class EmissionModeling:
         self.df = pd.read_sql(query, connection)
     
     def preprocess_data(self, country_data):
-        data = country_data['value_mt'].values.reshape(-1, 1)
+        data = country_data['value_mt'].values
+        data = data.reshape(-1, 1)
         
         scaler = MinMaxScaler(feature_range=(0, 1))
         scaled_data = scaler.fit_transform(data)
@@ -96,15 +97,32 @@ class EmissionModeling:
             predictions = []
             for _ in range(n_steps):
                 pred = model.predict(last_data)
-                predictions.append(pred[0, 0])
+                predictions.append(pred[0,0])
                 last_data = np.roll(last_data, -1)
                 last_data[0, 0, -1] = pred
             
             predictions = scaler.inverse_transform(np.array(predictions).reshape(-1, 1))
             
-            fig = go.Figure()
-            fig.add_trace(go.Scatter(x=country_data.index, y=country_data['value_mt'], mode='lines', name='Original Data'))
+            fig, ax = plt.subplots()
+            ax.plot(country_data.index, country_data['value_mt'], label='Original Data')
             forecast_index = range(country_data.index[-1] + 1, country_data.index[-1] + 1 + n_steps)
-            fig.add_trace(go.Scatter(x=list(forecast_index), y=predictions.flatten(), mode='lines', name='Forecast'))
-            fig.update_layout(title=f'Forecast for {country}', xaxis_title='Year', yaxis_title='Emissions')
+            ax.plot(list(forecast_index), predictions, label='Forecast')
+            ax.legend()
+            ax.set_title(f'Forecast for {country}')
+            ax.set_xlabel('year_data')
+            ax.set_ylabel('Emissions')
             return fig
+        else:
+            raise ValueError(f'Model or scaler not found for {country}. Available countries: {list(self.models.keys())}')
+
+    def train_and_plot_if_needed(self, country, n_steps):
+        if country not in self.models:
+            country_data = self.df[self.df['entity'] == country].copy()
+            country_data.set_index('year_data', inplace=True)
+            trainX, trainY, testX, testY, scaler = self.preprocess_data(country_data)
+
+            model = self.train_lstm(trainX, trainY)
+            self.models[country] = model
+            self.scalers[country] = scaler
+
+        return self.plot_forecast(country, n_steps)
