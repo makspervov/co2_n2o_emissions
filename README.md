@@ -38,18 +38,21 @@ Several graphs are generated to visualize the data:
 
 A machine learning model is trained to forecast future emissions. The models are instances of the `EmissionModeling` (for LSTM) and `EmissionDataModeling` (for ARIMA) classes.
 
-### EmissionModeling Class (LSTM)
+## EmissionModeling Class (LSTM)
 
-The `EmissionModeling` class includes the following methods:
+The `EmissionModeling` class facilitates time series forecasting of emissions using LSTM models. It includes methods for data loading, preprocessing, model training, saving/loading models, and plotting forecasts.
 
-- `load_data(query, connection)`: Loads data from the database using a SQL query and connection.
-- `preprocess_data(country_data)`: Preprocesses the data for the LSTM model.
-- `create_dataset(dataset, look_back=1)`: Creates a dataset for the LSTM model.
-- `train_lstm(trainX, trainY)`: Trains the LSTM model.
-- `train_models(countries)`: Trains models for each country.
-- `save_models(path='models/')`: Saves the trained models.
-- `load_models(path='models/')`: Loads the trained models.
-- `plot_forecast(country, n_steps)`: Plots the forecasted emissions for a given country using Plotly.
+### Methods
+- `__init__(self, data_type)`: Initializes the `EmissionModeling` object with the specified `data_type` and initializes empty dictionaries (`models`, `scalers`) to store trained models and scalers for each country.
+- `load_data(query, connection)`: Loads emissions data from a SQL database using the provided query and connection parameters. The loaded data is stored in a Pandas DataFrame (`self.df`).
+- `preprocess_data(country_data)`: Preprocesses the emissions data specific to a country. It scales the emissions values using `MinMaxScaler`, splits the data into training and testing sets, and reshapes the data into the required format for LSTM input.
+- `create_dataset(dataset, look_back=1)`: Creates sequences of input features (`dataX`) and corresponding output labels (`dataY`) from the given dataset using a specified look-back period (`look_back`).
+- `train_lstm(trainX, trainY)`: Defines and trains an LSTM model using the provided training data (`trainX`, `trainY`). The model consists of an LSTM layer with 4 units followed by a Dense layer. It uses mean squared error as the loss function and Adam optimizer.
+- `train_models(countries)`: Iteratively trains LSTM models for each country specified in the `countries` list. For each country, it preprocesses the data, trains an LSTM model, and stores the trained model and scaler.
+- `save_models(path='models/')`: Saves the trained LSTM models (`models`) and corresponding scalers (`scalers`) to the specified path using HDF5 format for models and pickle format for scalers.
+- `load_models(path='models/')`: Loads previously trained LSTM models (`models`) and scalers (`scalers`) from the specified path. Models are loaded from HDF5 files and scalers are loaded from pickle files.
+- `plot_forecast(country, n_steps)`: Generates a forecast plot for emissions of the specified `country` for `n_steps` into the future using the trained LSTM model. It retrieves the data for the country, scales it, makes predictions using the LSTM model, and plots the original data alongside the forecasted values.
+- `train_and_plot_if_needed(country, n_steps)`: Checks if a trained model exists for the specified `country`. If not, it trains a new LSTM model using historical data for the country and then generates and returns a forecast plot for `n_steps` into the future. If a trained model already exists, it directly generates and returns the forecast plot. If no trained model exists for a country specified in `train_and_plot_if_needed`, it will raise an exception indicating that the model or scaler is not found.
 
 ### EmissionDataModeling Class (ARIMA)
 
