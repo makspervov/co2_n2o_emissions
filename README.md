@@ -65,21 +65,25 @@ The Streamlit application and the MySQL database are both containerized using Do
 
 ### Docker Compose
 
-Docker Compose is used to run the Streamlit application and MySQL database together. The `docker-compose.yml` file in the root directory of the project defines the services that make up the application. It includes the build context and Dockerfile location for each service, and sets up the necessary environment variables and ports.
+Docker Compose is used to run the Streamlit application and MySQL database together. The `docker-compose.yml` file in the root directory of the project defines the services that make up the application. It includes the build context and Dockerfile location for each service, and sets up the necessary environment variables and ports. This Docker Compose was run on a host machine running Windows 11. Unfortunately, I can't predict it will work on Linux and mac OS.
 
 To deploy the application, follow these steps:
 
 1. Clone the repository:
     ```sh
-    git clone https://github.com/your-repo/emissions-forecasting.git
+    git clone https://github.com/makspervov/co2_n2o_emissions.git
     ```
 2. Navigate to the directory containing the `docker-compose.yml` file:
     ```sh
-    cd emissions-forecasting
+    cd co2_n2o_emissions
     ```
-3. Build and start the services:
+3. Build the services:
     ```sh
-    docker-compose up --build
+    docker compose build
+    ```
+4. Start the services:
+    ```sh
+    docker compose up --build
     ```
 This will build the Docker images (if they don't already exist) and start the services defined in `docker-compose.yml`.
 
